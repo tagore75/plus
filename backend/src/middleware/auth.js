@@ -12,6 +12,19 @@ const authenticate = async (req, res, next) => {
       });
     }
 
+    // 게스트 모드 처리
+    if (token === 'guest-token') {
+      req.user = {
+        id: 'guest',
+        name: '게스트',
+        email: 'guest@medical-chatbot.local',
+        isActive: true,
+        isGuest: true,
+      };
+      req.userId = 'guest';
+      return next();
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findByPk(decoded.userId);
 

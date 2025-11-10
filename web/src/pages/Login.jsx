@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { login, clearError } from '../store/authSlice';
+import { login, clearError, loginAsGuest } from '../store/authSlice';
 import toast from 'react-hot-toast';
 
 const Container = styled.div`
@@ -76,6 +76,40 @@ const Button = styled.button`
   }
 `;
 
+const GuestButton = styled.button`
+  padding: var(--spacing-md);
+  background: transparent;
+  color: var(--accent-primary);
+  border: 2px solid var(--accent-primary);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all var(--transition-base);
+
+  &:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+`;
+
+const Divider = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+  color: var(--text-secondary);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+  }
+`;
+
 const LinkText = styled.p`
   text-align: center;
   color: var(--text-secondary);
@@ -116,6 +150,11 @@ function Login() {
     dispatch(login({ email, password }));
   };
 
+  const handleGuestLogin = () => {
+    dispatch(loginAsGuest());
+    toast.success('게스트 모드로 시작합니다!');
+  };
+
   return (
     <Container>
       <Card>
@@ -140,6 +179,10 @@ function Login() {
             {loading ? '로그인 중...' : '로그인'}
           </Button>
         </Form>
+        <Divider>또는</Divider>
+        <GuestButton onClick={handleGuestLogin}>
+          🚀 게스트로 바로 시작하기
+        </GuestButton>
         <LinkText>
           계정이 없으신가요? <Link to="/register">회원가입</Link>
         </LinkText>

@@ -1,10 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../services/api';
 
+// 게스트 모드 초기화
+const isGuestMode = localStorage.getItem('guestMode') === 'true';
 const initialState = {
-  user: null,
-  token: localStorage.getItem('token') || null,
-  isAuthenticated: !!localStorage.getItem('token'),
+  user: isGuestMode ? {
+    id: 'guest',
+    name: '게스트',
+    email: 'guest@medical-chatbot.local',
+    isGuest: true,
+  } : null,
+  token: isGuestMode ? 'guest-token' : (localStorage.getItem('token') || null),
+  isAuthenticated: isGuestMode || !!localStorage.getItem('token'),
   loading: false,
   error: null,
 };
@@ -41,12 +48,25 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem('token');
+      localStorage.removeItem('guestMode');
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
     },
     clearError: (state) => {
       state.error = null;
+    },
+    loginAsGuest: (state) => {
+      // 게스트 모드로 로그인 - 토큰 없이 사용 가능
+      localStorage.setItem('guestMode', 'true');
+      state.isAuthenticated = true;
+      state.user = {
+        id: 'guest',
+        name: '게스트',
+        email: 'guest@medical-chatbot.local',
+        isGuest: true,
+      };
+      state.token = 'guest-token';
     },
   },
   extraReducers: (builder) => {
@@ -84,5 +104,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, loginAsGuest } = authSlice.actions;
 export default authSlice.reducer;
