@@ -51,3 +51,12 @@ lerna-debug.log*
 .cache/
 *.tsbuildinfo
 .turbo/
+
+# Database
+*.sqlite
+*.sqlite3
+database.sqlite
+
+# Logs
+logs/
+*.log
