@@ -33,19 +33,22 @@ const User = sequelize.define('User', {
     allowNull: true
   },
   gender: {
-    type: DataTypes.ENUM('male', 'female', 'other', 'prefer_not_to_say'),
-    allowNull: true
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isIn: [['male', 'female', 'other', 'prefer_not_to_say']]
+    }
   },
   bloodType: {
     type: DataTypes.STRING,
     allowNull: true
   },
   allergies: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.JSON,
     defaultValue: []
   },
   chronicConditions: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.JSON,
     defaultValue: []
   },
   emergencyContact: {
