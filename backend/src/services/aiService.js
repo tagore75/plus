@@ -1,8 +1,19 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const mockAiService = require('./mockAiService');
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-});
+// API 키가 있으면 실제 Claude 사용, 없으면 Mock 사용
+const USE_REAL_API = process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY !== 'your_api_key_here';
+
+let anthropic = null;
+if (USE_REAL_API) {
+  try {
+    anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+  } catch (error) {
+    console.warn('Claude API 초기화 실패. Mock 서비스를 사용합니다.');
+  }
+}
 
 // Medical-specific system prompt
 const MEDICAL_SYSTEM_PROMPT = `당신은 전문 의료 AI 어시스턴트입니다. 다음 지침을 따라주세요:
@@ -39,6 +50,13 @@ const MEDICAL_SYSTEM_PROMPT = `당신은 전문 의료 AI 어시스턴트입니�
 
 class AIService {
   async chat(messages, conversationType = 'general') {
+    // Mock 서비스 사용
+    if (!USE_REAL_API) {
+      console.log('🤖 Mock AI 서비스 사용 중');
+      return await mockAiService.chat(messages, conversationType);
+    }
+
+    // 실제 Claude API 사용
     try {
       // Prepare system prompt based on conversation type
       let systemPrompt = MEDICAL_SYSTEM_PROMPT;
@@ -70,13 +88,18 @@ class AIService {
         }
       };
     } catch (error) {
-      console.error('AI Service Error:', error);
-      throw new Error('AI 서비스 오류가 발생했습니다.');
+      console.error('Claude API Error:', error);
+      console.log('Claude API 오류 발생. Mock 서비스로 전환합니다.');
+      return await mockAiService.chat(messages, conversationType);
     }
   }
 
   async analyzeSymptoms(symptoms, userInfo) {
-    try {
+    if (!USE_REAL_API) {
+      return await mockAiService.analyzeSymptoms(symptoms, userInfo);
+    }
+
+    try{
       const prompt = `다음 증상을 분석해주세요:
 
 증상: ${symptoms}
@@ -101,11 +124,15 @@ class AIService {
       return response;
     } catch (error) {
       console.error('Symptom Analysis Error:', error);
-      throw error;
+      return await mockAiService.analyzeSymptoms(symptoms, userInfo);
     }
   }
 
   async getEmergencyGuidance(situation) {
+    if (!USE_REAL_API) {
+      return await mockAiService.getEmergencyGuidance(situation);
+    }
+
     try {
       const prompt = `다음 긴급 상황에 대한 응급 처치 가이드를 제공해주세요:
 
@@ -124,9 +151,17 @@ class AIService {
       return response;
     } catch (error) {
       console.error('Emergency Guidance Error:', error);
-      throw error;
+      return await mockAiService.getEmergencyGuidance(situation);
     }
   }
+}
+
+// 서비스 초기화 시 사용 중인 서비스 로그
+if (USE_REAL_API) {
+  console.log('✅ Claude API 사용 중');
+} else {
+  console.log('🤖 Mock AI 서비스 사용 중 (테스트 모드)');
+  console.log('💡 실제 Claude API를 사용하려면 .env 파일에 ANTHROPIC_API_KEY를 설정하세요.');
 }
 
 module.exports = new AIService();
