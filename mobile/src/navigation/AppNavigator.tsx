@@ -15,6 +15,7 @@ import ChatScreen from '../screens/main/ChatScreen';
 import EmergencyScreen from '../screens/main/EmergencyScreen';
 import WelfareScreen from '../screens/main/WelfareScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import TetrisScreen from '../screens/game/TetrisScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,6 +29,8 @@ const MainTabs = () => {
 
           if (route.name === 'Chat') {
             iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Tetris') {
+            iconName = focused ? 'game-controller' : 'game-controller-outline';
           } else if (route.name === 'Emergency') {
             iconName = focused ? 'alert-circle' : 'alert-circle-outline';
           } else if (route.name === 'Welfare') {
@@ -47,6 +50,11 @@ const MainTabs = () => {
         name="Chat"
         component={ChatScreen}
         options={{ tabBarLabel: '챗봇' }}
+      />
+      <Tab.Screen
+        name="Tetris"
+        component={TetrisScreen}
+        options={{ tabBarLabel: '테트리스' }}
       />
       <Tab.Screen
         name="Emergency"
